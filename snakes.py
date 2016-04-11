@@ -61,6 +61,14 @@ class Snake:
         return copy.deepcopy(self.__board)
 
 
+    def get_snake(self):
+        return copy.deepcopy(self.__snake)
+
+
+    def get_food(self):
+        return copy.deepcopy(self.__food)
+
+
     def move(self, direction):
         # 检查是否win
         if self.__check_win():
