@@ -10,6 +10,7 @@ class Snake:
     __snake = []
     __food = (-1,-1)
     __status = "alive"
+    __switch1 = True
 
     def __init__(self, board_height, board_width):
         if board_height < 2:
@@ -120,4 +121,132 @@ class Snake:
             self.__board[next_head[0]][next_head[1]] = "head"
             self.__snake.insert(0, next_head)
         return
+
+
+    def auto_move(self):
+        self.move(self.get_auto_direction())
+        return
+
+
+    def get_auto_direction(self):
+        (i, j) = self.__snake[0]
+        if self.__board_height < 2 or self.__board_width < 2:
+            return ""
+
+        if self.__board_height == 2:
+            if i == 0:
+                if j == self.__board_width - 1:
+                    auto_direction = "down"
+                else:
+                    auto_direction = "right"
+            else:
+                if j == 0:
+                    auto_direction = "up"
+                else:
+                    auto_direction = "left"
+            return auto_direction
+
+        if self.__board_width == 2:
+            if j == 0:
+                if i == 0:
+                    auto_direction = "right"
+                else:
+                    auto_direction = "up"
+            else:
+                if i == self.__board_height - 1:
+                    auto_direction = "left"
+                else:
+                    auto_direction = "down"
+            return auto_direction
+
+        # 列是偶数
+        if self.__board_width % 2 == 0:
+            if i == 0:
+                if j == 0:
+                    auto_direction = "down"
+                else:
+                    auto_direction = "left"
+            else:
+                if j == self.__board_width - 1:
+                    auto_direction = "up"
+                elif j % 2 == 0:
+                    if i == self.__board_height - 1:
+                        auto_direction = "right"
+                    else:
+                        auto_direction = "down"
+                else:
+                    if i == 1:
+                        auto_direction = "right"
+                    else:
+                        auto_direction = "up"
+            return auto_direction
+
+        # 行是偶数
+        if self.__board_height % 2 == 0:
+            if j == 0:
+                if i == self.__board_height - 1:
+                    auto_direction = "right"
+                else:
+                    auto_direction = "down"
+            else:
+                if i == 0:
+                    auto_direction = "left"
+                elif i % 2 == 1:
+                    if j == self.__board_width - 1:
+                        auto_direction = "up"
+                    else:
+                        auto_direction = "right"
+                else:
+                    if j == 1:
+                        auto_direction = "up"
+                    else:
+                        auto_direction = "left"
+            return auto_direction
+
+        # 行和列都是单数，这个情况稍微复杂点
+        if self.__board_height % 2 == 1 and self.__board_width % 2 == 1:
+            if j < self.__board_width - 2:
+                if i == 0:
+                    if j == 0:
+                        auto_direction = "down"
+                    else:
+                        auto_direction = "left"
+                else:
+                    if j % 2 == 0:
+                        if i == self.__board_height - 1:
+                            auto_direction = "right"
+                        else:
+                            auto_direction = "down"
+                    else:
+                        if i == 1:
+                            auto_direction = "right"
+                        else:
+                            auto_direction = "up"
+            elif i > 1:
+                if j == self.__board_width - 1:
+                    if i % 2 == 0:
+                        auto_direction = "up"
+                    else:
+                        auto_direction = "left"
+                else:
+                    if i % 2 == 0:
+                        auto_direction = "right"
+                    else:
+                        auto_direction = "up"
+            else:
+                if i == 0 and j == self.__board_width - 2:
+                    auto_direction = "left"
+                if i == 0 and j == self.__board_width - 1:
+                    auto_direction = "left"
+                if i == 1 and j == self.__board_width - 2:
+                    auto_direction = "up"
+                if i == 1 and j == self.__board_width - 1:
+                    if self.__switch1:
+                        auto_direction = "left"
+                    else:
+                        auto_direction = "up"
+                self.__switch1 = not self.__switch1
+        return auto_direction
+
+
 

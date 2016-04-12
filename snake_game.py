@@ -16,7 +16,7 @@ def main():
     COLOR_CONN = (140,140,140)
     COLOR_FOOD = (110,110,220)
 
-    snake = snakes.Snake(9,9)
+    snake = snakes.Snake(7,9)
     direct = "" # up, down, left, right
     next_direct = "" # up, down, left, right
 
@@ -54,10 +54,11 @@ def main():
             continue
 
         cur_time = time.time()
-        if (cur_time - last_time) > (1.0 / 2) and "alive" == snake.get_status():
+        if (cur_time - last_time) > (1.0 / 100) and "alive" == snake.get_status():
             last_time = cur_time
             direct = next_direct
-            snake.move(direct)
+            #snake.move(direct)
+            snake.auto_move()
             print "time:%.5f status:%s len:%d" %(time.time(), snake.get_status(), len(snake.get_snake()))
         
             # 绘制背景和分割线
@@ -65,11 +66,11 @@ def main():
             screen.fill(COLOR_BACK)
             board, height, width = snake.get_board(), len(board), len(board[0])
             for i in range(height):
-                pygame.draw.line(screen, COLOR_LINE, (0,i*ELEM_WIDTH), (height*ELEM_WIDTH-1,i*ELEM_WIDTH))
-                pygame.draw.line(screen, COLOR_LINE, (0,(i+1)*ELEM_WIDTH-1), (height*ELEM_WIDTH-1,(i+1)*ELEM_WIDTH-1))
+                pygame.draw.line(screen, COLOR_LINE, (0,i*ELEM_WIDTH), (width*ELEM_WIDTH-1,i*ELEM_WIDTH))
+                pygame.draw.line(screen, COLOR_LINE, (0,(i+1)*ELEM_WIDTH-1), (width*ELEM_WIDTH-1,(i+1)*ELEM_WIDTH-1))
             for i in range(width):
-                pygame.draw.line(screen, COLOR_LINE, (i*ELEM_WIDTH,0), (i*ELEM_WIDTH,width*ELEM_WIDTH-1))
-                pygame.draw.line(screen, COLOR_LINE, ((i+1)*ELEM_WIDTH-1,0), ((i+1)*ELEM_WIDTH-1,width*ELEM_WIDTH-1))
+                pygame.draw.line(screen, COLOR_LINE, (i*ELEM_WIDTH,0), (i*ELEM_WIDTH,height*ELEM_WIDTH-1))
+                pygame.draw.line(screen, COLOR_LINE, ((i+1)*ELEM_WIDTH-1,0), ((i+1)*ELEM_WIDTH-1,height*ELEM_WIDTH-1))
             # 绘制 food
             (i, j) = snake.get_food()
             pygame.draw.ellipse(screen, COLOR_FOOD, (j*ELEM_WIDTH+4, i*ELEM_WIDTH+4, ELEM_WIDTH-8, ELEM_WIDTH-8))
