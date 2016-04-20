@@ -1,21 +1,86 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import random, copy
+import random, copy, os
 
 
 def BoardIsContinues(board):
     if len(board) == 0 or len(board[0]) == 0:
         return False
     check_board = copy.deepcopy(board)
-    max_c, max_l = len(board), len(board[0])
-    return False
+    max_l, max_c = len(check_board), len(check_board[0])
+
+    check_elems = []
+    for i in range(max_l):
+        for j in range(max_c):
+            if check_board[i][j] == "":
+                check_elems.insert(0, (i, j))
+                check_board[i][j] = "1"
+                break
+        if len(check_elems) > 0:
+            break
+
+    while True:
+        if len(check_elems) == 0:
+            break
+        x = check_elems.pop()
+        if x[0]-1 >= 0 and (check_board[x[0]-1][x[1]] == "" or check_board[x[0]-1][x[1]] == "food"):
+            check_elems.insert(0, (x[0]-1, x[1]))
+            check_board[x[0]-1][x[1]] = "1"
+        if x[0]+1 < max_l and (check_board[x[0]+1][x[1]] == "" or check_board[x[0]+1][x[1]] == "food"):
+            check_elems.insert(0, (x[0]+1, x[1]))
+            check_board[x[0]+1][x[1]] = "1"
+        if x[1]-1 >= 0 and (check_board[x[0]][x[1]-1] == "" or check_board[x[0]][x[1]-1] == "food"):
+            check_elems.insert(0, (x[0], x[1]-1))
+            check_board[x[0]][x[1]-1] = "1"
+        if x[1]+1 < max_c and (check_board[x[0]][x[1]+1] == "" or check_board[x[0]][x[1]+1] == "food"):
+            check_elems.insert(0, (x[0], x[1]+1))
+            check_board[x[0]][x[1]+1] = "1"
+
+    for i in range(max_l):
+        for j in range(max_c):
+            if check_board[i][j] == "":
+                return False
+
+    return True
 
 
-def SnakeCanGetTail(board):
+def SnakeCanGetTail(board, snake):
     if len(board) == 0 or len(board[0]) == 0:
         return False
     check_board = copy.deepcopy(board)
-    max_c, max_l = len(board), len(board[0])
+    max_l, max_c = len(check_board), len(check_board[0])
+    check_elems = [snake[0]]
+
+    while True:
+        if len(check_elems) == 0:
+            break
+        x = check_elems.pop()
+        if x[0]-1 >= 0:
+            if (x[0]-1, x[1]) == snake[-1]:
+                return True
+            if (check_board[x[0]-1][x[1]] == "" or check_board[x[0]-1][x[1]] == "food"):
+                check_elems.insert(0, (x[0]-1, x[1]))
+                check_board[x[0]-1][x[1]] = "1"
+        if x[0]+1 < max_l:
+            if (x[0]+1, x[1]) == snake[-1]:
+                return True
+            if (check_board[x[0]+1][x[1]] == "" or check_board[x[0]+1][x[1]] == "food"):
+                check_elems.insert(0, (x[0]+1, x[1]))
+                check_board[x[0]+1][x[1]] = "1"
+        if x[1]-1 >= 0:
+            if (x[0], x[1]-1) == snake[-1]:
+                return True
+            if (check_board[x[0]][x[1]-1] == "" or check_board[x[0]][x[1]-1] == "food"):
+                check_elems.insert(0, (x[0], x[1]-1))
+                check_board[x[0]][x[1]-1] = "1"
+        if x[1]+1 < max_c:
+            if (x[0], x[1]+1) == snake[-1]:
+                return True
+            if (check_board[x[0]][x[1]+1] == "" or check_board[x[0]][x[1]+1] == "food"):
+                check_elems.insert(0, (x[0], x[1]+1))
+                check_board[x[0]][x[1]+1] = "1"
+    return False
+
 
 
 class Snake:
@@ -140,7 +205,12 @@ class Snake:
 
 
     def auto_move(self):
-        self.move(self.get_auto_direction1())
+        #self.move(self.get_auto_direction1())
+        a = self.get_auto_direction2()
+        print a
+        if a != "up" and a != "down" and a != "left" and a != "right":
+            os.system("pause")
+        self.move(a)
         return
 
 
@@ -271,9 +341,9 @@ class Snake:
         (i, j) = self.__snake[0]
         (f_i, f_j) = self.__food
         if self.__board_height < 2 or self.__board_width < 2:
-            return ""
+            return "1"
         if i == f_i and j == f_j:
-            return ""
+            return "2"
 
         direct_candidate = []
         if i == f_i:
@@ -292,16 +362,23 @@ class Snake:
             else:
                 direct_candidate = ["up", "right", "left", "down"]
         
-        if self.__auto_cur_direct2 != "":
-            a.remove[self.__auto_cur_direct2]
+        if self.__auto_cur_direct2 == "up":
+            direct_candidate.remove("down")
+        elif self.__auto_cur_direct2 == "down":
+            direct_candidate.remove("up")
+        elif self.__auto_cur_direct2 == "left":
+            direct_candidate.remove("right")
+        elif self.__auto_cur_direct2 == "right":
+            direct_candidate.remove("left")
 
         for x in direct_candidate:
             test_snake = copy.deepcopy(self.__snake)
-            test_board = copy.deepcoyp(self.__board)
+            test_board = copy.deepcopy(self.__board)
             if self.__test_auto_direction2(test_snake, test_board, x):
+                self.__auto_cur_direct2 = x
                 return x
         else:
-            return ""
+            return "3"
 
 
     def __test_auto_direction2(self, test_snake, test_board, direction):
@@ -349,10 +426,12 @@ class Snake:
 
         # 检查 test_board 空白区域是否连续
         if not BoardIsContinues(test_board):
+            print test_snake, test_board, direction, "BoardIsContinues"
             return False
 
         # 检查 test_snake 是否看得到尾巴
-        if not SnakeCanGetTail(test_board):
+        if not SnakeCanGetTail(test_board, test_snake):
+            print test_snake, test_board, direction, "SnakeCanGetTail"
             return False
 
         # 如果吃中食物，说明测试成功
@@ -361,7 +440,7 @@ class Snake:
             return True
         else:
             (i, j) = test_snake[0]
-            (f_i, f_j) = test_food
+            (f_i, f_j) = self.__food
             direct_candidate = []
             if i == f_i:
                 if j < f_j:
@@ -378,14 +457,22 @@ class Snake:
                     direct_candidate = ["up", "left", "right", "down"]
                 else:
                     direct_candidate = ["up", "right", "left", "down"]
-            a.remove[direction]
+            if direction == "up":
+                direct_candidate.remove("down")
+            elif direction == "down":
+                direct_candidate.remove("up")
+            elif direction == "left":
+                direct_candidate.remove("right")
+            elif direction == "right":
+                direct_candidate.remove("left")
 
             for x in direct_candidate:
                 new_test_snake = copy.deepcopy(test_snake)
-                new_test_board = copy.deepcoyp(test_board)
+                new_test_board = copy.deepcopy(test_board)
                 if self.__test_auto_direction2(new_test_snake, new_test_board, x):
                     return True
             else:
+                print test_snake, test_board, direction, "alltry"
                 return False
 
 
