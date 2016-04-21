@@ -90,8 +90,11 @@ class Snake:
     __snake = []
     __food = (-1,-1)
     __status = "alive"
-    __auto_direct_switch1 = True
-    __auto_cur_direct2 = ""
+    ## for auto1
+    __auto1_direct_switch = True
+    ## for auto2
+    __auto2_cur_direct = ""
+    __auto2_tested_snakes = []
 
     def __init__(self, board_height, board_width):
         if board_height < 2:
@@ -206,11 +209,8 @@ class Snake:
 
     def auto_move(self):
         #self.move(self.get_auto_direction1())
-        a = self.get_auto_direction2()
-        print a
-        if a != "up" and a != "down" and a != "left" and a != "right":
-            os.system("pause")
-        self.move(a)
+        self.move(self.get_auto_direction2())
+        print self.__auto2_cur_direct, self.__snake, self.__board
         return
 
 
@@ -328,11 +328,11 @@ class Snake:
                 if i == 1 and j == self.__board_width - 2:
                     auto_direction = "up"
                 if i == 1 and j == self.__board_width - 1:
-                    if self.__auto_direct_switch1:
+                    if self.__auto1_direct_switch:
                         auto_direction = "left"
                     else:
                         auto_direction = "up"
-                self.__auto_direct_switch1 = not self.__auto_direct_switch1
+                self.__auto1_direct_switch = not self.__auto1_direct_switch
         return auto_direction
 
 
@@ -341,9 +341,9 @@ class Snake:
         (i, j) = self.__snake[0]
         (f_i, f_j) = self.__food
         if self.__board_height < 2 or self.__board_width < 2:
-            return "1"
+            return ""
         if i == f_i and j == f_j:
-            return "2"
+            return ""
 
         direct_candidate = []
         if i == f_i:
@@ -362,26 +362,52 @@ class Snake:
             else:
                 direct_candidate = ["up", "right", "left", "down"]
         
-        if self.__auto_cur_direct2 == "up":
+        # 除去不可以选的方向
+        if self.__auto2_cur_direct == "up":
             direct_candidate.remove("down")
-        elif self.__auto_cur_direct2 == "down":
+        elif self.__auto2_cur_direct == "down":
             direct_candidate.remove("up")
-        elif self.__auto_cur_direct2 == "left":
+        elif self.__auto2_cur_direct == "left":
             direct_candidate.remove("right")
-        elif self.__auto_cur_direct2 == "right":
+        elif self.__auto2_cur_direct == "right":
             direct_candidate.remove("left")
 
+        # 除去可能撞墙、撞到自己的方向
+        head = self.__snake[0]
+        if head[0] <= 0:
+            direct_candidate.remove("up")
+        if head[0] >= self.__board_height - 1:
+            direct_candidate.remove("down")
+        if head[1] <= 0:
+            direct_candidate.remove("left")
+        if head[1] >= self.__board_width - 1:
+            direct_candidate.remove("right")
+        for x in self.__snake[0:len(self.__snake)-1]:
+            if x == (head[0]-1, head[1]) and "up" in direct_candidate:
+                direct_candidate.remove("up")
+            if x == (head[0]+1, head[1]) and "down" in direct_candidate:
+                direct_candidate.remove("down")
+            if x == (head[0], head[1]-1) and "left" in direct_candidate:
+                direct_candidate.remove("left")
+            if x == (head[0], head[1]+1) and "right" in direct_candidate:
+                direct_candidate.remove("right")
+
+        self.__auto2_tested_snakes = []
         for x in direct_candidate:
             test_snake = copy.deepcopy(self.__snake)
             test_board = copy.deepcopy(self.__board)
-            if self.__test_auto_direction2(test_snake, test_board, x):
-                self.__auto_cur_direct2 = x
-                return x
+            self.__auto2_tested_snakes.append(self.__snake)
+            result = self.__test_auto_direction2(test_snake, test_board, x)
+            self.__auto2_tested_snakes.pop()
+            if result:
+                self.__auto2_cur_direct = x
+                return self.__auto2_cur_direct
         else:
-            return "3"
-
+            self.__auto2_cur_direct = random.choice(direct_candidate)
+            return self.__auto2_cur_direct
 
     def __test_auto_direction2(self, test_snake, test_board, direction):
+        #print "__test_auto_direction2: ", test_snake, test_board, direction
         head, next_head = test_snake[0], None
         # 先检查是否撞墙
         if "up" == direction:
@@ -423,15 +449,19 @@ class Snake:
             test_board[tail[0]][tail[1]] = ""
             test_board[next_head[0]][next_head[1]] = "head"
             test_snake.insert(0, next_head)
+            # 如果和 self.__snake 形状相同，则会导致无限递归
+            for s in self.__auto2_tested_snakes:
+                if s == test_snake:
+                    return False
 
         # 检查 test_board 空白区域是否连续
         if not BoardIsContinues(test_board):
-            print test_snake, test_board, direction, "BoardIsContinues"
+            #print test_snake, test_board, direction, "BoardIsContinues"
             return False
 
         # 检查 test_snake 是否看得到尾巴
         if not SnakeCanGetTail(test_board, test_snake):
-            print test_snake, test_board, direction, "SnakeCanGetTail"
+            #print test_snake, test_board, direction, "SnakeCanGetTail"
             return False
 
         # 如果吃中食物，说明测试成功
@@ -469,10 +499,14 @@ class Snake:
             for x in direct_candidate:
                 new_test_snake = copy.deepcopy(test_snake)
                 new_test_board = copy.deepcopy(test_board)
-                if self.__test_auto_direction2(new_test_snake, new_test_board, x):
+                self.__auto2_tested_snakes.append(test_snake)
+                result = self.__test_auto_direction2(new_test_snake, new_test_board, x)
+                self.__auto2_tested_snakes.pop()
+                if result:
                     return True
             else:
-                print test_snake, test_board, direction, "alltry"
+                #print test_snake, test_board, direction, "all no"
+                self.__auto2_tested_snakes.pop()
                 return False
 
 
