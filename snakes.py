@@ -506,7 +506,6 @@ class Snake:
                     return True
             else:
                 #print test_snake, test_board, direction, "all no"
-                self.__auto2_tested_snakes.pop()
                 return False
 
 
