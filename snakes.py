@@ -393,6 +393,7 @@ class Snake:
                 direct_candidate.remove("right")
 
         self.__auto2_tested_snakes = []
+        direct_candidate_ok = []
         for x in direct_candidate:
             test_snake = copy.deepcopy(self.__snake)
             test_board = copy.deepcopy(self.__board)
@@ -400,8 +401,11 @@ class Snake:
             result = self.__test_auto_direction2(test_snake, test_board, x)
             self.__auto2_tested_snakes.pop()
             if result:
-                self.__auto2_cur_direct = x
-                return self.__auto2_cur_direct
+                direct_candidate_ok.append(x)
+
+        if len(direct_candidate_ok) > 0:
+            self.__auto2_cur_direct = random.choice(direct_candidate_ok)
+            return self.__auto2_cur_direct
         else:
             self.__auto2_cur_direct = random.choice(direct_candidate)
             return self.__auto2_cur_direct
@@ -455,9 +459,9 @@ class Snake:
                     return False
 
         # 检查 test_board 空白区域是否连续
-        if not BoardIsContinues(test_board):
-            #print test_snake, test_board, direction, "BoardIsContinues"
-            return False
+        # if not BoardIsContinues(test_board):
+        #     #print test_snake, test_board, direction, "BoardIsContinues"
+        #     return False
 
         # 检查 test_snake 是否看得到尾巴
         if not SnakeCanGetTail(test_board, test_snake):

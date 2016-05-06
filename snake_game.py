@@ -16,7 +16,7 @@ def main():
     COLOR_CONN = (140,140,140)
     COLOR_FOOD = (110,110,220)
 
-    snake = snakes.Snake(3,3)
+    snake = snakes.Snake(5,5)
     direct = "" # up, down, left, right
     next_direct = "" # up, down, left, right
 
