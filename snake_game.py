@@ -16,7 +16,7 @@ def main():
     COLOR_CONN = (140,140,140)
     COLOR_FOOD = (110,110,220)
 
-    snake = snakes.Snake(5,5)
+    snake = snakes.Snake(6,6)
     direct = "" # up, down, left, right
     next_direct = "" # up, down, left, right
 
@@ -54,7 +54,7 @@ def main():
             continue
 
         cur_time = time.time()
-        if (cur_time - last_time) > (1.0 / 10) and "alive" == snake.get_status():
+        if (cur_time - last_time) > (1.0 / 5) and "alive" == snake.get_status():
             last_time = cur_time
             direct = next_direct
             #snake.move(direct)

@@ -94,6 +94,7 @@ class Snake:
     __auto1_direct_switch = True
     ## for auto2
     __auto2_cur_direct = ""
+    __auto2_cur_direct_type = ""
     __auto2_tested_snakes = []
 
     def __init__(self, board_height, board_width):
@@ -210,7 +211,7 @@ class Snake:
     def auto_move(self):
         #self.move(self.get_auto_direction1())
         self.move(self.get_auto_direction2())
-        print self.__auto2_cur_direct, self.__snake, self.__board
+        print self.__auto2_cur_direct, "\t", self.__auto2_cur_direct_type
         return
 
 
@@ -336,7 +337,7 @@ class Snake:
         return auto_direction
 
 
-    ## 随机获取方向
+    ## 通过尝试（回溯）来获取方向
     def get_auto_direction2(self):
         (i, j) = self.__snake[0]
         (f_i, f_j) = self.__food
@@ -345,72 +346,133 @@ class Snake:
         if i == f_i and j == f_j:
             return ""
 
-        direct_candidate = []
+        # 1是离 food 更近的方向
+        # 2是离 food 更远的方向
+        direct_candidate_1 = []
+        direct_candidate_2 = []
         if i == f_i:
             if j < f_j:
-                direct_candidate = ["right", "up", "down", "left"]
+                direct_candidate_1 = ["right"]
+                direct_candidate_2 = ["up", "down", "left"]
             elif j > f_j:
-                direct_candidate = ["left", "up", "down", "right"]
+                direct_candidate_1 = ["left"]
+                direct_candidate_2 = ["up", "down", "right"]
         elif i < f_i:
-            if j >= f_j:
-                direct_candidate = ["down", "left", "right", "up"]
+            if j > f_j:
+                direct_candidate_1 = ["down", "left"]
+                direct_candidate_2 = ["right", "up"]
             elif j < f_j:
-                direct_candidate = ["down", "right", "left", "up"]
-        else:
-            if j >= f_j:
-                direct_candidate = ["up", "left", "right", "down"]
-            else:
-                direct_candidate = ["up", "right", "left", "down"]
+                direct_candidate_1 = ["down", "right"]
+                direct_candidate_2 = ["left", "up"]
+            elif j == f_j:
+                direct_candidate_1 = ["down"]
+                direct_candidate_2 = ["right", "left", "up"]
+        elif i > f_i:
+            if j > f_j:
+                direct_candidate_1 = ["up", "left"]
+                direct_candidate_2 = ["right", "down"]
+            elif j < f_j:
+                direct_candidate_1 = ["up", "right"]
+                direct_candidate_2 = ["left", "down"]
+            elif j == f_j:
+                direct_candidate_1 = ["up"]
+                direct_candidate_2 = ["right", "left", "down"]
         
         # 除去不可以选的方向
         if self.__auto2_cur_direct == "up":
-            direct_candidate.remove("down")
+            if "down" in direct_candidate_1: direct_candidate_1.remove("down")
+            if "down" in direct_candidate_2: direct_candidate_2.remove("down")
         elif self.__auto2_cur_direct == "down":
-            direct_candidate.remove("up")
+            if "up" in direct_candidate_1: direct_candidate_1.remove("up")
+            if "up" in direct_candidate_2: direct_candidate_2.remove("up")
         elif self.__auto2_cur_direct == "left":
-            direct_candidate.remove("right")
+            if "right" in direct_candidate_1: direct_candidate_1.remove("right")
+            if "right" in direct_candidate_2: direct_candidate_2.remove("right")
         elif self.__auto2_cur_direct == "right":
-            direct_candidate.remove("left")
+            if "left" in direct_candidate_1: direct_candidate_1.remove("left")
+            if "left" in direct_candidate_2: direct_candidate_2.remove("left")
 
         # 除去可能撞墙、撞到自己的方向
         head = self.__snake[0]
         if head[0] <= 0:
-            direct_candidate.remove("up")
+            if "up" in direct_candidate_1: direct_candidate_1.remove("up")
+            if "up" in direct_candidate_2: direct_candidate_2.remove("up")
         if head[0] >= self.__board_height - 1:
-            direct_candidate.remove("down")
+            if "down" in direct_candidate_1: direct_candidate_1.remove("down")
+            if "down" in direct_candidate_2: direct_candidate_2.remove("down")
         if head[1] <= 0:
-            direct_candidate.remove("left")
+            if "left" in direct_candidate_1: direct_candidate_1.remove("left")
+            if "left" in direct_candidate_2: direct_candidate_2.remove("left")
         if head[1] >= self.__board_width - 1:
-            direct_candidate.remove("right")
+            if "right" in direct_candidate_1: direct_candidate_1.remove("right")
+            if "right" in direct_candidate_2: direct_candidate_2.remove("right")
         for x in self.__snake[0:len(self.__snake)-1]:
-            if x == (head[0]-1, head[1]) and "up" in direct_candidate:
-                direct_candidate.remove("up")
-            if x == (head[0]+1, head[1]) and "down" in direct_candidate:
-                direct_candidate.remove("down")
-            if x == (head[0], head[1]-1) and "left" in direct_candidate:
-                direct_candidate.remove("left")
-            if x == (head[0], head[1]+1) and "right" in direct_candidate:
-                direct_candidate.remove("right")
+            if x == (head[0]-1, head[1]):
+                if "up" in direct_candidate_1: direct_candidate_1.remove("up")
+                if "up" in direct_candidate_2: direct_candidate_2.remove("up")
+            if x == (head[0]+1, head[1]):
+                if "down" in direct_candidate_1: direct_candidate_1.remove("down")
+                if "down" in direct_candidate_2: direct_candidate_2.remove("down")
+            if x == (head[0], head[1]-1):
+                if "left" in direct_candidate_1: direct_candidate_1.remove("left")
+                if "left" in direct_candidate_2: direct_candidate_2.remove("left")
+            if x == (head[0], head[1]+1):
+                if "right" in direct_candidate_1: direct_candidate_1.remove("right")
+                if "right" in direct_candidate_2: direct_candidate_2.remove("right")
 
         self.__auto2_tested_snakes = []
-        direct_candidate_ok = []
-        for x in direct_candidate:
+        direct_candidate_1_ok = []
+        for x in direct_candidate_1:
             test_snake = copy.deepcopy(self.__snake)
             test_board = copy.deepcopy(self.__board)
             self.__auto2_tested_snakes.append(self.__snake)
-            result = self.__test_auto_direction2(test_snake, test_board, x)
+            result = self.__test_auto_direction2(test_snake, test_board, x, True)
             self.__auto2_tested_snakes.pop()
             if result:
-                direct_candidate_ok.append(x)
-
-        if len(direct_candidate_ok) > 0:
-            self.__auto2_cur_direct = random.choice(direct_candidate_ok)
-            return self.__auto2_cur_direct
-        else:
-            self.__auto2_cur_direct = random.choice(direct_candidate)
+                direct_candidate_1_ok.append(x)
+        if len(direct_candidate_1_ok) > 0:
+            self.__auto2_cur_direct = random.choice(direct_candidate_1_ok)
+            self.__auto2_cur_direct_type = "1_ok"
             return self.__auto2_cur_direct
 
-    def __test_auto_direction2(self, test_snake, test_board, direction):
+        direct_candidate_2_ok = []
+        for x in direct_candidate_2:
+            test_snake = copy.deepcopy(self.__snake)
+            test_board = copy.deepcopy(self.__board)
+            self.__auto2_tested_snakes.append(self.__snake)
+            result = self.__test_auto_direction2(test_snake, test_board, x, True)
+            self.__auto2_tested_snakes.pop()
+            if result:
+                direct_candidate_2_ok.append(x)
+        if len(direct_candidate_2_ok) > 0:
+            self.__auto2_cur_direct = random.choice(direct_candidate_2_ok)
+            self.__auto2_cur_direct_type = "2_ok"
+            return self.__auto2_cur_direct
+
+        direct_candidate_soso = []
+        for x in direct_candidate_1 + direct_candidate_2:
+            test_snake = copy.deepcopy(self.__snake)
+            test_board = copy.deepcopy(self.__board)
+            self.__auto2_tested_snakes.append(self.__snake)
+            result = self.__test_auto_direction2(test_snake, test_board, x, False)
+            self.__auto2_tested_snakes.pop()
+            if result:
+                direct_candidate_soso.append(x)
+        if len(direct_candidate_soso) > 0:
+            self.__auto2_cur_direct = random.choice(direct_candidate_soso)
+            self.__auto2_cur_direct_type = "soso"
+            return self.__auto2_cur_direct
+
+        if len(direct_candidate_1 + direct_candidate_2) > 0:
+            self.__auto2_cur_direct = random.choice(direct_candidate_1 + direct_candidate_2)
+            self.__auto2_cur_direct_type = "bad"
+            return self.__auto2_cur_direct
+
+        self.__auto2_cur_direct = ""
+        return self.__auto2_cur_direct
+
+    # deep_test: True - 递归检查; False - 不递归检查
+    def __test_auto_direction2(self, test_snake, test_board, direction, deep_test):
         #print "__test_auto_direction2: ", test_snake, test_board, direction
         head, next_head = test_snake[0], None
         # 先检查是否撞墙
@@ -458,6 +520,10 @@ class Snake:
                 if s == test_snake:
                     return False
 
+        # 检查是否吃完
+        if len(test_snake) == self.__board_height * self.__board_width:
+            return True
+
         # 检查 test_board 空白区域是否连续
         # if not BoardIsContinues(test_board):
         #     #print test_snake, test_board, direction, "BoardIsContinues"
@@ -468,49 +534,54 @@ class Snake:
             #print test_snake, test_board, direction, "SnakeCanGetTail"
             return False
 
-        # 如果吃中食物，说明测试成功
-        # 如果未吃中食物，则需要测试下一步是否成功
-        if next_head == self.__food:
-            return True
-        else:
-            (i, j) = test_snake[0]
-            (f_i, f_j) = self.__food
-            direct_candidate = []
-            if i == f_i:
-                if j < f_j:
-                    direct_candidate = ["right", "up", "down", "left"]
-                elif j > f_j:
-                    direct_candidate = ["left", "up", "down", "right"]
-            elif i < f_i:
-                if j >= f_j:
-                    direct_candidate = ["down", "left", "right", "up"]
-                elif j < f_j:
-                    direct_candidate = ["down", "right", "left", "up"]
+        if deep_test:
+            # 深度检查逻辑：
+            #   1. 如果吃中食物，说明测试成功
+            #   2. 如果未吃中食物，则需要测试下一步是否成功
+            if next_head == self.__food:
+                return True
             else:
-                if j >= f_j:
-                    direct_candidate = ["up", "left", "right", "down"]
+                (i, j) = test_snake[0]
+                (f_i, f_j) = self.__food
+                direct_candidate = []
+                if i == f_i:
+                    if j < f_j:
+                        direct_candidate = ["right", "up", "down", "left"]
+                    elif j > f_j:
+                        direct_candidate = ["left", "up", "down", "right"]
+                elif i < f_i:
+                    if j >= f_j:
+                        direct_candidate = ["down", "left", "right", "up"]
+                    elif j < f_j:
+                        direct_candidate = ["down", "right", "left", "up"]
                 else:
-                    direct_candidate = ["up", "right", "left", "down"]
-            if direction == "up":
-                direct_candidate.remove("down")
-            elif direction == "down":
-                direct_candidate.remove("up")
-            elif direction == "left":
-                direct_candidate.remove("right")
-            elif direction == "right":
-                direct_candidate.remove("left")
+                    if j >= f_j:
+                        direct_candidate = ["up", "left", "right", "down"]
+                    else:
+                        direct_candidate = ["up", "right", "left", "down"]
+                if direction == "up":
+                    direct_candidate.remove("down")
+                elif direction == "down":
+                    direct_candidate.remove("up")
+                elif direction == "left":
+                    direct_candidate.remove("right")
+                elif direction == "right":
+                    direct_candidate.remove("left")
 
-            for x in direct_candidate:
-                new_test_snake = copy.deepcopy(test_snake)
-                new_test_board = copy.deepcopy(test_board)
-                self.__auto2_tested_snakes.append(test_snake)
-                result = self.__test_auto_direction2(new_test_snake, new_test_board, x)
-                self.__auto2_tested_snakes.pop()
-                if result:
-                    return True
-            else:
-                #print test_snake, test_board, direction, "all no"
-                return False
+                for x in direct_candidate:
+                    new_test_snake = copy.deepcopy(test_snake)
+                    new_test_board = copy.deepcopy(test_board)
+                    self.__auto2_tested_snakes.append(test_snake)
+                    result = self.__test_auto_direction2(new_test_snake, new_test_board, x, True)
+                    self.__auto2_tested_snakes.pop()
+                    if result:
+                        return True
+                else:
+                    #print test_snake, test_board, direction, "all no"
+                    return False
+        else:
+            # 非深度检查，至此认为检查通过
+            return True
 
 
 
