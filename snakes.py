@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import random, copy, os
+import random, copy, sys
 
 
 # 检查board是否连续
@@ -109,6 +109,7 @@ class Snake:
     __auto2_cur_direct = ""
     __auto2_cur_direct_type = ""
     __auto2_tested_snakes = []
+    __auto2_max_recur_cnt = 0
 
     def __init__(self, board_height, board_width):
         if board_height < 2:
@@ -121,6 +122,9 @@ class Snake:
         self.__snake.append((board_height/2, board_width/2))
         self.__board[board_height/2][board_width/2] = "head"
         self.__new_food()
+        self.__auto2_max_recur_cnt = ((board_height * board_width)**2) * 4
+        if sys.getrecursionlimit() < self.__auto2_max_recur_cnt:
+            sys.setrecursionlimit(self.__auto2_max_recur_cnt)
 
 
     def __check_win(self):
@@ -232,9 +236,9 @@ class Snake:
             return 
         if len(self.__auto2_cur_direct_list) == 0:
             self.get_auto_direction2()
+            print "%d \t %s" %(len(self.__auto2_cur_direct_list), self.__auto2_cur_direct_type)
         self.__auto2_cur_direct = self.__auto2_cur_direct_list.pop(0)
         self.move(self.__auto2_cur_direct)
-        print self.__auto2_cur_direct, "\t", self.__auto2_cur_direct_type
         return
 
 

@@ -1,10 +1,9 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-import snakes
+import snakes, sys
 
 def main():
-    if True: print 1
-    if False: print 2
+    return
 
 
 

@@ -16,16 +16,19 @@ def main():
     COLOR_CONN = (140,140,140)
     COLOR_FOOD = (110,110,220)
 
-    HEIGHT, WIDTH, PLAY_MODE = 0, 0, 0
+    HEIGHT, WIDTH, PLAY_MODE, GAME_SPEED = 0, 0, 0, 0
     while not (type(HEIGHT) is int and HEIGHT >= 2):
         HEIGHT = input("input board HEIGHT (must >= 2):")
-    print "HEIGHT", HEIGHT
+    print "HEIGHT:", HEIGHT
     while not (type(WIDTH) is int and WIDTH >= 2):
         WIDTH = input("input board WIDTH (must >= 2):")
-    print "WIDTH", WIDTH
+    print "WIDTH:", WIDTH
     while not (type(PLAY_MODE) is int and (PLAY_MODE == 1 or PLAY_MODE == 2 or PLAY_MODE == 3)):
         PLAY_MODE = input("input PLAY_MODE: \n\t1 - play snake game \n\t2 - auto snake mode1\n\t3 - auto snake mode2\n")
-    print "PLAY_MODE", PLAY_MODE
+    print "PLAY_MODE:", PLAY_MODE
+    while not (type(GAME_SPEED) is int and GAME_SPEED >= 1):
+        GAME_SPEED = input("input GAME_SPEED (step per seconds, must >= 1):")
+    print "GAME_SPEED:", GAME_SPEED
 
     snake = snakes.Snake(HEIGHT, WIDTH)
     direct = "" # up, down, left, right
@@ -65,7 +68,7 @@ def main():
             continue
 
         cur_time = time.time()
-        if (cur_time - last_time) > (1.0 / 10) and "alive" == snake.get_status():
+        if (cur_time - last_time) > (1.0 / GAME_SPEED) and "alive" == snake.get_status():
             last_time = cur_time
 
             if PLAY_MODE == 1:
