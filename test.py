@@ -3,10 +3,8 @@
 import snakes
 
 def main():
-    board = [["2", "2"],["", ""]]
-    print snakes.BoardIsContinues(board)
-    for i in range(len(board)):
-        print board[i]
+    if True: print 1
+    if False: print 2
 
 
 

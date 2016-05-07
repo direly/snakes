@@ -16,7 +16,18 @@ def main():
     COLOR_CONN = (140,140,140)
     COLOR_FOOD = (110,110,220)
 
-    snake = snakes.Snake(6,6)
+    HEIGHT, WIDTH, PLAY_MODE = 0, 0, 0
+    while not (type(HEIGHT) is int and HEIGHT >= 2):
+        HEIGHT = input("input board HEIGHT (must >= 2):")
+    print "HEIGHT", HEIGHT
+    while not (type(WIDTH) is int and WIDTH >= 2):
+        WIDTH = input("input board WIDTH (must >= 2):")
+    print "WIDTH", WIDTH
+    while not (type(PLAY_MODE) is int and (PLAY_MODE == 1 or PLAY_MODE == 2 or PLAY_MODE == 3)):
+        PLAY_MODE = input("input PLAY_MODE: \n\t1 - play snake game \n\t2 - auto snake mode1\n\t3 - auto snake mode2\n")
+    print "PLAY_MODE", PLAY_MODE
+
+    snake = snakes.Snake(HEIGHT, WIDTH)
     direct = "" # up, down, left, right
     next_direct = "" # up, down, left, right
 
@@ -54,11 +65,18 @@ def main():
             continue
 
         cur_time = time.time()
-        if (cur_time - last_time) > (1.0 / 5) and "alive" == snake.get_status():
+        if (cur_time - last_time) > (1.0 / 10) and "alive" == snake.get_status():
             last_time = cur_time
-            direct = next_direct
-            #snake.move(direct)
-            snake.auto_move()
+
+            if PLAY_MODE == 1:
+                direct = next_direct
+                snake.move(direct)
+            elif PLAY_MODE == 2:
+                snake.auto_move1()
+            elif PLAY_MODE == 3:
+                snake.auto_move2()
+            else:
+                assert(False)
             #print "time:%.5f status:%s len:%d" %(time.time(), snake.get_status(), len(snake.get_snake()))
         
             # 绘制背景和分割线
