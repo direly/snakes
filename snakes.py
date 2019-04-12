@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding:utf-8 -*-
 import random, copy, sys
 
@@ -119,8 +119,8 @@ class Snake:
         self.__board = [ ["" for i in range(board_width)] for j in range(board_height) ]
         self.__board_height = board_height
         self.__board_width = board_width
-        self.__snake.append((board_height/2, board_width/2))
-        self.__board[board_height/2][board_width/2] = "head"
+        self.__snake.append((int(board_height/2), int(board_width/2)))
+        self.__board[int(board_height/2)][int(board_width/2)] = "head"
         self.__new_food()
         self.__auto2_max_recur_cnt = ((board_height * board_width)**2) * 4
         if sys.getrecursionlimit() < self.__auto2_max_recur_cnt:
@@ -236,7 +236,7 @@ class Snake:
             return 
         if len(self.__auto2_cur_direct_list) == 0:
             self.get_auto_direction2()
-            print "%d \t %s" %(len(self.__auto2_cur_direct_list), self.__auto2_cur_direct_type)
+            print("%d \t %s" %(len(self.__auto2_cur_direct_list), self.__auto2_cur_direct_type))
         self.__auto2_cur_direct = self.__auto2_cur_direct_list.pop(0)
         self.move(self.__auto2_cur_direct)
         return
@@ -487,7 +487,7 @@ class Snake:
     # deep_test: True - 递归检查; False - 不递归检查（只检查一步）
     # keep_distance: True - 要求头尾不相邻; False - 无要求
     def __test_auto_direction2(self, test_snake, test_board, direction, deep_test, keep_distance):
-        #print "__test_auto_direction2: ", test_snake, test_board, direction
+        #print("__test_auto_direction2: ", test_snake, test_board, direction)
         head, next_head = test_snake[0], None
         # 先检查是否撞墙
         if "up" == direction:
@@ -540,7 +540,7 @@ class Snake:
 
         # 检查 test_board 空白区域是否连续
         # if not BoardIsContinues(test_board):
-        #     #print test_snake, test_board, direction, "BoardIsContinues"
+        #     #print(test_snake, test_board, direction, "BoardIsContinues")
         #     return False
 
         # 检查 head 和 tail 是否相邻
@@ -549,7 +549,7 @@ class Snake:
 
         # 检查 test_snake 是否看得到尾巴
         if not SnakeCanGetTail(test_board, test_snake):
-            #print test_snake, test_board, direction, "SnakeCanGetTail"
+            #print(test_snake, test_board, direction, "SnakeCanGetTail")
             return False
 
         if deep_test:
@@ -619,7 +619,7 @@ class Snake:
                     else:
                         self.__auto2_cur_direct_list.pop()
                 else:
-                    #print test_snake, test_board, direction, "all no"
+                    #print(test_snake, test_board, direction, "all no")
                     return False
         else:
             # 非深度检查，至此认为检查通过

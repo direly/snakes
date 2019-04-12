@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding:utf-8 -*-
 import sys, time
 import pygame
@@ -18,17 +18,17 @@ def main():
 
     HEIGHT, WIDTH, PLAY_MODE, GAME_SPEED = 0, 0, 0, 0
     while not (type(HEIGHT) is int and HEIGHT >= 2):
-        HEIGHT = input("input board HEIGHT (must >= 2):")
-    print "HEIGHT:", HEIGHT
+        HEIGHT = int(input("input board HEIGHT (must >= 2):"))
+    print("HEIGHT:", HEIGHT)
     while not (type(WIDTH) is int and WIDTH >= 2):
-        WIDTH = input("input board WIDTH (must >= 2):")
-    print "WIDTH:", WIDTH
+        WIDTH = int(input("input board WIDTH (must >= 2):"))
+    print("WIDTH:", WIDTH)
     while not (type(PLAY_MODE) is int and (PLAY_MODE == 1 or PLAY_MODE == 2 or PLAY_MODE == 3)):
-        PLAY_MODE = input("input PLAY_MODE: \n\t1 - play snake game \n\t2 - auto snake mode1\n\t3 - auto snake mode2\n")
-    print "PLAY_MODE:", PLAY_MODE
+        PLAY_MODE = int(input("input PLAY_MODE: \n\t1 - play snake game \n\t2 - auto snake mode1\n\t3 - auto snake mode2\n"))
+    print("PLAY_MODE:", PLAY_MODE)
     while not (type(GAME_SPEED) is int and GAME_SPEED >= 1):
-        GAME_SPEED = input("input GAME_SPEED (step per seconds, must >= 1):")
-    print "GAME_SPEED:", GAME_SPEED
+        GAME_SPEED = int(input("input GAME_SPEED (step per seconds, must >= 1):"))
+    print("GAME_SPEED:", GAME_SPEED)
 
     snake = snakes.Snake(HEIGHT, WIDTH)
     direct = "" # up, down, left, right
@@ -80,7 +80,7 @@ def main():
                 snake.auto_move2()
             else:
                 assert(False)
-            #print "time:%.5f status:%s len:%d" %(time.time(), snake.get_status(), len(snake.get_snake()))
+            #print("time:%.5f status:%s len:%d" %(time.time(), snake.get_status(), len(snake.get_snake())))
         
             # 绘制背景和分割线
             screen.lock()
