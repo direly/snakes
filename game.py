@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import sys, time
 import pygame
-import snakes
+import my_snake
 
 
 
@@ -30,7 +30,7 @@ def main():
         GAME_SPEED = int(input("input GAME_SPEED (step per seconds, must >= 1):"))
     print("GAME_SPEED:", GAME_SPEED)
 
-    snake = snakes.Snake(HEIGHT, WIDTH)
+    snake = my_snake.Snake(HEIGHT, WIDTH)
     direct = "" # up, down, left, right
     next_direct = "" # up, down, left, right
 
